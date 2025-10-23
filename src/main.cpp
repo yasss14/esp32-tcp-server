@@ -8,15 +8,25 @@ const char *password = WIFI_PASSWORD;
 const int port = 10000;
 WiFiServer server(port);
 
+const int LED_PIN = 21;  // LED built-in sur la plupart des ESP32
+bool ledState = 0;
+
 void handleTCPClient() {
   WiFiClient client = server.available();
   uint8_t data[30];
   if (client)
   {
-    Serial.println("New client");
+    
+    ledState = !ledState;
+    digitalWrite(LED_PIN, ledState);
+
+
+    Serial.println("New client from IP address: " + client.remoteIP().toString() + ", port: " + String(client.remotePort()));
     /* check client is connected */
     while (client.connected())
     {
+      
+
       if (client.available())
       {
         int len = client.read(data, 30);
@@ -103,6 +113,8 @@ void connectToNetwork()
 
 void setup() {
   Serial.begin(115200);
+
+  pinMode(LED_PIN, OUTPUT);
 
   // Print MAC address
   Serial.println("MCU MAC address: " + WiFi.macAddress());
